@@ -1,36 +1,124 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 3D Badge Card Portfolio
 
-## Getting Started
+A modern 3D portfolio website built with Next.js and Three.js, featuring interactive 3D badge cards with physics simulation.
 
-First, run the development server:
+## 🚀 Technologies Used
 
+- **Next.js 15** - React framework with App Router
+- **TypeScript** - Type-safe development
+- **Three.js** - 3D graphics library
+- **React Three Fiber** - React renderer for Three.js
+- **React Three Drei** - Useful helpers and abstractions
+- **React Three Rapier** - Physics engine integration
+- **Leva** - GUI controls for real-time tweaking
+- **Tailwind CSS** - Utility-first CSS framework
+
+## ✨ Features
+
+- 🎮 Interactive 3D scene with orbit controls
+- 🎯 Physics simulation with falling objects
+- 🎨 Animated 3D badge cards with hover effects
+- ⭐ Starfield background
+- 🌈 Animated lines with custom line rendering
+- 🎛️ Real-time GUI controls with Leva
+- 📱 Responsive design
+- 🎭 Smooth animations and transitions
+
+## 🛠️ Installation
+
+1. Clone the repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <repository-url>
+cd 3d-badge-card
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Run the development server:
+```bash
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## Learn More
+## 🎯 Usage
 
-To learn more about Next.js, take a look at the following resources:
+- **Drag** to rotate the camera around the scene
+- **Scroll** to zoom in and out
+- **Hover** over badge cards to see interactive effects
+- **Use Leva controls** (top-right panel) to tweak scene parameters in real-time
+- Watch the physics simulation with falling objects
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 📁 Project Structure
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+src/
+├── app/
+│   ├── layout.tsx          # Root layout
+│   ├── page.tsx            # Home page
+│   └── globals.css         # Global styles
+└── components/
+    ├── Scene3D.tsx         # Main 3D scene
+    ├── BadgeCard.tsx       # Interactive 3D badge cards
+    ├── AnimatedLines.tsx   # Animated line effects
+    └── LevaControls.tsx    # Real-time GUI controls
+```
 
-## Deploy on Vercel
+## 🎨 Customization
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Adding New Badge Cards
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Edit `src/components/Scene3D.tsx` and add new `BadgeCard` components:
+
+```tsx
+<BadgeCard 
+  title="Your Title" 
+  subtitle="Your Subtitle" 
+  position={[x, y, z]} 
+/>
+```
+
+### Modifying Colors and Materials
+
+Update the materials in the components:
+- `BadgeCard.tsx` - Card colors and effects
+- `Scene3D.tsx` - Lighting and background
+- `AnimatedLines.tsx` - Line colors and animations
+- `LevaControls.tsx` - Controllable object properties
+
+### Using Leva Controls
+
+The Leva panel (top-right) provides real-time control over:
+- **Position** - X, Y, Z coordinates of the controllable object
+- **Rotation** - Rotation angles around each axis
+- **Scale** - Size multiplier
+- **Color** - Material color picker
+- **Wireframe** - Toggle wireframe mode
+- **Metalness** - Material metallic property
+- **Roughness** - Material surface roughness
+- **Animation Speed** - Rotation animation speed
+- **Shape** - Switch between box and sphere
+
+## 🚀 Deployment
+
+Build the project for production:
+
+```bash
+npm run build
+npm start
+```
+
+## 📝 License
+
+This project is open source and available under the [MIT License](LICENSE).
+
+## 🤝 Contributing
+
+Contributions, issues, and feature requests are welcome!
+
+## 📧 Contact
+
+Feel free to reach out if you have any questions or suggestions!
