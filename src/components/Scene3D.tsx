@@ -32,7 +32,7 @@ export default function App() {
 }
 
 function Band({ maxSpeed = 50, minSpeed = 10 }) {
-  const band = useRef(), fixed = useRef(), j1 = useRef(), j2 = useRef(), j3 = useRef(), card = useRef() // prettier-ignore
+  const band = useRef(), fixed = useRef(), j1 = useRef(), j2 = useRef(), j3 = useRef(), card = useRef(), cardGroup = useRef() // prettier-ignore
   const vec = new THREE.Vector3(), ang = new THREE.Vector3(), rot = new THREE.Vector3(), dir = new THREE.Vector3() // prettier-ignore
   const segmentProps = { type: "dynamic", canSleep: true, colliders: false, angularDamping: 2, linearDamping: 2 };
   const { nodes, materials } = useGLTF("/id_card.glb");
@@ -41,6 +41,11 @@ function Band({ maxSpeed = 50, minSpeed = 10 }) {
   const [curve] = useState(() => new THREE.CatmullRomCurve3([new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()]));
   const [dragged, drag] = useState(false);
   const [hovered, hover] = useState(false);
+  const [flipped, setFlipped] = useState(false);
+  const [clickStartTime, setClickStartTime] = useState(0);
+  const [targetRotation, setTargetRotation] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragTimeout, setDragTimeout] = useState(null);
 
   useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], 1]) // prettier-ignore
   useRopeJoint(j1, j2, [[0, 0, 0], [0, 0, 0], 1]) // prettier-ignore
@@ -61,7 +66,18 @@ function Band({ maxSpeed = 50, minSpeed = 10 }) {
       vec.add(dir.multiplyScalar(state.camera.position.length()));
       [card, j1, j2, j3, fixed].forEach((ref) => ref.current?.wakeUp());
       card.current?.setNextKinematicTranslation({ x: vec.x - dragged.x, y: vec.y - dragged.y, z: vec.z - dragged.z });
+      setIsDragging(true);
     }
+    
+    // Smooth rotation animation for card flip - applied to the visual group, not physics body
+    if (cardGroup.current) {
+      const rotationDiff = targetRotation - cardGroup.current.rotation.y;
+      if (Math.abs(rotationDiff) > 0.01) {
+        console.log('Animating rotation. Current:', cardGroup.current.rotation.y, 'Target:', targetRotation, 'Diff:', rotationDiff);
+        cardGroup.current.rotation.y += rotationDiff * delta * 8; // Smooth interpolation
+      }
+    }
+    
     if (fixed.current) {
       // Fix most of the jitter when over pulling the card
       [j1, j2].forEach((ref) => {
@@ -101,12 +117,48 @@ function Band({ maxSpeed = 50, minSpeed = 10 }) {
         <RigidBody position={[2, 0, 0]} ref={card} {...segmentProps} type={dragged ? "kinematicPosition" : "dynamic"}>
           <CuboidCollider args={[0.8, 1.125, 0.01]} />
           <group
+            ref={cardGroup}
             scale={[2.1, 2.25, 2.25]}
             position={[0, -1.2, -0.05]}
             onPointerOver={() => hover(true)}
             onPointerOut={() => hover(false)}
-            onPointerUp={(e) => (e.target.releasePointerCapture(e.pointerId), drag(false))}
-            onPointerDown={(e) => (e.target.setPointerCapture(e.pointerId), drag(new THREE.Vector3().copy(e.point).sub(vec.copy(card.current.translation()))))}
+            onPointerUp={(e) => {
+              e.target.releasePointerCapture(e.pointerId);
+              
+              // Clear drag timeout if it exists
+              if (dragTimeout) {
+                clearTimeout(dragTimeout);
+                setDragTimeout(null);
+              }
+              
+              const clickDuration = Date.now() - clickStartTime;
+              
+              // If it's a quick release and not dragging, flip the card
+              if (!isDragging && clickDuration < 500) {
+                console.log('Flipping card! Current flipped:', flipped, 'New target rotation:', flipped ? 0 : Math.PI);
+                setFlipped(!flipped);
+                setTargetRotation(flipped ? 0 : Math.PI);
+              }
+              
+              drag(false);
+              setIsDragging(false);
+            }}
+            onPointerDown={(e) => {
+              e.target.setPointerCapture(e.pointerId);
+              setClickStartTime(Date.now());
+              setIsDragging(false);
+              
+              // Store drag data for later use
+              const dragData = new THREE.Vector3().copy(e.point).sub(vec.copy(card.current.translation()));
+              
+              // Set timeout to activate drag after 500ms (long press)
+              const timeout = setTimeout(() => {
+                drag(dragData);
+                setIsDragging(true);
+              }, 150);
+              
+              setDragTimeout(timeout);
+            }}
           >
             <mesh geometry={nodes.card.geometry}>
               <meshPhysicalMaterial map={materials.base.map} map-anisotropy={16} clearcoat={1} clearcoatRoughness={0.15} roughness={0.3} metalness={0.5} />
