@@ -12,10 +12,24 @@ extend({ MeshLineGeometry, MeshLineMaterial });
 useGLTF.preload("/id_card.glb");
 useTexture.preload("/band2.png");
 
+function CameraController() {
+  const { zoom } = useControls({
+    zoom: { value: 13, min: 5, max: 30, step: 0.5 }
+  });
+  const { camera } = useThree();
+  
+  useFrame(() => {
+    camera.position.z = zoom;
+  });
+  
+  return null;
+}
+
 export default function App() {
   const { debug } = useControls({ debug: false });
   return (
     <Canvas camera={{ position: [0, 0, 13], fov: 25 }} className="w-screen h-screen block">
+      <CameraController />
       <ambientLight intensity={Math.PI} />
       <Physics debug={debug} interpolate gravity={[0, -40, 0]} timeStep={1 / 60}>
         <Band />
